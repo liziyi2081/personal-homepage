@@ -180,6 +180,16 @@ declare module 'astro:content' {
   rendered?: RenderedContent;
   filePath?: string;
 }>;
+"outsourcing": Record<string, {
+  id: string;
+  render(): Render[".md"];
+  slug: string;
+  body: string;
+  collection: "outsourcing";
+  data: InferEntrySchema<"outsourcing">;
+  rendered?: RenderedContent;
+  filePath?: string;
+}>;
 "products": Record<string, {
   id: string;
   render(): Render[".md"];

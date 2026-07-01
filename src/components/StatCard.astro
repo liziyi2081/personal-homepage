@@ -1,0 +1,66 @@
+---
+// StatCard.astro — large mono number + label + path, with count-up animation
+export interface Props {
+  value: number;
+  label: string;
+  path: string;
+  prefix?: string;
+}
+
+const { value, label, path, prefix = 'C' } = Astro.props;
+const id = `stat-${label.toLowerCase().replace(/\s+/g, '-')}`;
+---
+<div
+  class="glass-card p-6 flex flex-col justify-between"
+  id={id}
+>
+  <div class="flex items-center justify-between mb-3">
+    <span class="font-mono text-[12px] tracking-[0.2em] uppercase text-frost/40">{label}</span>
+    <span class="font-mono text-[10px] text-neon-cyan/40">{prefix}0{label.length}</span>
+  </div>
+  <span
+    class="stat-value font-mono text-5xl md:text-5xl font-bold text-plasma tabular-nums"
+    data-target={String(value)}
+  >0</span>
+  <span class="font-mono text-[12px] text-frost/20 mt-3">content/{path}/</span>
+</div>
+
+<script>
+  (function() {
+    function animateCount(el, target, duration) {
+      var start = performance.now();
+      function tick(now) {
+        var elapsed = now - start;
+        var progress = Math.min(elapsed / duration, 1);
+        var eased = 1 - Math.pow(1 - progress, 3);
+        el.textContent = String(Math.round(eased * target));
+        if (progress < 1) {
+          requestAnimationFrame(tick);
+        }
+      }
+      requestAnimationFrame(tick);
+    }
+
+    var el = document.getElementById('{id}');
+    if (!el) return;
+    var valueEl = el.querySelector('.stat-value');
+    if (!valueEl) return;
+
+    var target = parseInt(valueEl.dataset.target || '0', 10);
+    var prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (prefersReducedMotion) {
+      valueEl.textContent = String(target);
+    } else {
+      var observer = new IntersectionObserver(function(entries) {
+        for (var i = 0; i < entries.length; i++) {
+          if (entries[i].isIntersecting) {
+            animateCount(valueEl, target, 800);
+            observer.unobserve(el);
+          }
+        }
+      }, { threshold: 0.5 });
+      observer.observe(el);
+    }
+  })();
+</script>

@@ -49,9 +49,21 @@ const projectsCollection = defineCollection({
   }),
 });
 
+const outsourcingCollection = defineCollection({
+  type: 'content',
+  schema: z.object({
+    name: z.string(),
+    description: z.string(),
+    client: z.string().default(''),
+    link: z.string().url().optional(),
+    order: z.number().default(0),
+  }),
+});
+
 export const collections = {
   about: aboutCollection,
   articles: articlesCollection,
   products: productsCollection,
   projects: projectsCollection,
+  outsourcing: outsourcingCollection,
 };

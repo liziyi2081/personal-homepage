@@ -3,7 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import MagneticCard from '../components/MagneticCard.astro';
-import RingMetric from '../components/RingMetric.astro';
+import StatCard from '../components/StatCard.astro';
 import { getCollection } from 'astro:content';
 
 const about = await getCollection('about');
@@ -13,11 +13,8 @@ const articles = (await getCollection('articles'))
 const allArticles = await getCollection('articles');
 const products = await getCollection('products');
 const projects = await getCollection('projects');
+const outsourcings = await getCollection('outsourcing');
 const profile = about[0]?.data;
-
-const SITE_BIRTHDAY = new Date('2026-06-01');
-const uptimeDays = Math.floor((Date.now() - SITE_BIRTHDAY.getTime()) / (1000 * 60 * 60 * 24));
-const uptimePct = Math.min(100, Math.round((uptimeDays / 365) * 100));
 ---
 
 <BaseLayout>
@@ -26,8 +23,8 @@ const uptimePct = Math.min(100, Math.round((uptimeDays / 365) * 100));
   <main class="max-w-6xl mx-auto px-6 lg:px-12">
     <!-- Hero -->
     <section class="py-24 md:py-36">
-      <p class="font-mono text-sm text-neon-cyan mb-4 animate-fade-in tracking-wide">
-        $ whoami<span class="cursor-blink text-neon-cyan">█</span>
+      <p class="font-mono text-sm text-neon-cyan mb-4 tracking-wide">
+        <span id="typewriter"></span><span class="cursor-blink text-neon-cyan">█</span>
       </p>
       {
         profile && (
@@ -45,38 +42,35 @@ const uptimePct = Math.min(100, Math.round((uptimeDays / 365) * 100));
         )
       }
 
-      <!-- Ring metrics -->
-      <div class="mt-12 flex flex-wrap gap-8 md:gap-14">
-        <RingMetric value={allArticles.length} max={10} label="articles" />
-        <RingMetric value={projects.length} max={10} label="projects" />
-        <RingMetric value={uptimePct} max={100} label="uptime" unit="%" />
+      <!-- Stat cards -->
+      <div class="mt-12 grid grid-cols-2 md:grid-cols-4 gap-4">
+        <StatCard value={products.length} label="Products" path="products" prefix="P" />
+        <StatCard value={allArticles.length} label="Articles" path="articles" prefix="A" />
+        <StatCard value={projects.length} label="Open Source" path="projects" prefix="OS" />
+        <StatCard value={outsourcings.length} label="Contracts" path="outsourcing" prefix="CT" />
       </div>
     </section>
 
     <hr class="border-white/5" />
 
-    <!-- Featured Articles -->
-    <section class="py-20">
-      <div class="flex items-center justify-between mb-10">
-        <h2 class="font-mono text-xs tracking-[0.2em] uppercase text-frost">
-          <span class="text-neon-cyan">$</span> ls articles/ --latest
-        </h2>
-        <a
-          href="/articles"
-          class="font-mono text-xs text-frost hover:text-plasma transition-colors duration-200"
-        >
-          View all &rarr;
-        </a>
-      </div>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {
-          articles.length > 0 ? (
-            articles.map((article) => (
+    <!-- 2×2 Content Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 pb-24 py-20">
+
+      <!-- Articles -->
+      <section>
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="font-mono text-xs tracking-[0.2em] uppercase text-frost">
+            <span class="text-neon-cyan">$</span> ls articles/ --latest
+          </h2>
+          <a href="/articles" class="font-mono text-xs text-frost hover:text-plasma transition-colors duration-200">
+            View all &rarr;
+          </a>
+        </div>
+        <div class="space-y-4">
+          {articles.length > 0 ? (
+            articles.slice(0, 2).map((article) => (
               <MagneticCard class="glass-card">
-                <a
-                  href={`/articles/${article.slug}`}
-                  class="group block p-6"
-                >
+                <a href={`/articles/${article.slug}`} class="group block p-6">
                   <p class="font-mono text-xs text-frost/50 mb-3">
                     {article.data.date.toLocaleDateString('en-US', {
                       year: 'numeric',
@@ -101,100 +95,185 @@ const uptimePct = Math.min(100, Math.round((uptimeDays / 365) * 100));
               </MagneticCard>
             ))
           ) : (
-            <div class="col-span-3 glass-card p-6 text-center font-mono text-xs text-frost/40">
-              No articles yet. Write your first post in <code class="text-frost/60">src/content/articles/</code>.
+            <div class="glass-card p-6 text-center font-mono text-xs text-frost/40">
+              No articles yet.
             </div>
-          )
-        }
-      </div>
-    </section>
+          )}
+        </div>
+      </section>
 
-    <!-- Products + Projects summary row -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 pb-24">
       <!-- Products -->
       <section>
-        <div class="flex items-center justify-between mb-8">
+        <div class="flex items-center justify-between mb-6">
           <h2 class="font-mono text-xs tracking-[0.2em] uppercase text-frost">
             <span class="text-neon-cyan">$</span> cat products.json | jq '.[]'
           </h2>
-          <a
-            href="/products"
-            class="font-mono text-xs text-frost hover:text-plasma transition-colors duration-200"
-          >
+          <a href="/products" class="font-mono text-xs text-frost hover:text-plasma transition-colors duration-200">
             View all &rarr;
           </a>
         </div>
         <div class="space-y-4">
           {products.length > 0 ? (
-            products.map((product) => (
-              <MagneticCard class="glass-card block p-5">
-                <a href={`/products#${product.slug}`}>
-                  <div class="flex items-center gap-4">
-                    <div class="hex-icon w-12 h-12 flex-shrink-0 border border-white/10">
-                      <span class="font-mono text-xs font-bold text-neon-cyan">{product.data.name[0]}</span>
-                    </div>
-                    <div class="min-w-0">
-                      <h3 class="font-display text-sm font-bold text-plasma">{product.data.name}</h3>
-                      <p class="font-body text-xs text-frost/60 truncate">{product.data.description}</p>
-                    </div>
-                    <span class="ml-auto font-mono text-[10px] text-frost/30">&nearr;</span>
+            products.slice(0, 2).map((product) => (
+              <MagneticCard class="glass-card">
+                <a href={`/products#${product.slug}`} class="group block p-6">
+                  <h3 class="font-display text-lg font-bold text-plasma mb-2 group-hover:text-neon-cyan transition-colors duration-200">
+                    {product.data.name}
+                  </h3>
+                  <p class="font-body text-sm text-frost leading-relaxed mb-4">
+                    {product.data.description}
+                  </p>
+                  <div class="flex items-center gap-2 font-mono text-xs text-frost/40">
+                    <span>&rarr;</span>
+                    <span class="truncate">{product.data.link}</span>
                   </div>
                 </a>
               </MagneticCard>
             ))
           ) : (
-            <p class="font-mono text-xs text-frost/40 py-4 text-center">No products yet.</p>
+            <div class="glass-card p-6 text-center font-mono text-xs text-frost/40">
+              No products yet.
+            </div>
           )}
         </div>
       </section>
 
-      <!-- Projects -->
+      <!-- Open Source -->
       <section>
-        <div class="flex items-center justify-between mb-8">
+        <div class="flex items-center justify-between mb-6">
           <h2 class="font-mono text-xs tracking-[0.2em] uppercase text-frost">
-            <span class="text-neon-cyan">$</span> gh repo list --limit 5
+            <span class="text-neon-cyan">$</span> gh repo list --limit 3
           </h2>
-          <a
-            href="/projects"
-            class="font-mono text-xs text-frost hover:text-plasma transition-colors duration-200"
-          >
+          <a href="/projects" class="font-mono text-xs text-frost hover:text-plasma transition-colors duration-200">
             View all &rarr;
           </a>
         </div>
         <div class="space-y-4">
           {projects.length > 0 ? (
-            projects.map((project) => (
-              <MagneticCard class="glass-card block p-5">
-                <a
-                  href={project.data.repo}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <div class="flex items-center gap-4">
-                    <div class="hex-icon w-12 h-12 flex-shrink-0 border border-white/10">
-                      <span class="font-mono text-xs font-bold text-neon-cyan">{project.data.name[0]}</span>
-                    </div>
-                    <div class="min-w-0">
-                      <div class="flex items-center gap-2">
-                        <h3 class="font-display text-sm font-bold text-plasma">{project.data.name}</h3>
-                        {project.data.language && (
-                          <span class="font-mono text-[10px] text-frost/30">{project.data.language}</span>
-                        )}
-                      </div>
-                      <p class="font-body text-xs text-frost/60 truncate">{project.data.description}</p>
-                    </div>
-                    <span class="ml-auto font-mono text-[10px] text-frost/30">&nearr;</span>
+            projects.slice(0, 2).map((project) => (
+              <MagneticCard class="glass-card">
+                <a href={project.data.repo} target="_blank" rel="noopener noreferrer" class="group block p-6">
+                  <p class="font-mono text-xs text-frost/50 mb-3">
+                    {project.data.name}
+                    {project.data.language && (
+                      <span> &middot; <span class="text-neon-cyan/60">{project.data.language}</span></span>
+                    )}
+                  </p>
+                  <h3 class="font-display text-lg font-bold text-plasma mb-2 group-hover:text-neon-cyan transition-colors duration-200">
+                    {project.data.description}
+                  </h3>
+                  <div class="flex items-center gap-2 font-mono text-xs text-frost/40">
+                    <span class="text-neon-cyan/60">&star; {project.data.stars}</span>
+                    <span>&rarr; repo</span>
                   </div>
                 </a>
               </MagneticCard>
             ))
           ) : (
-            <p class="font-mono text-xs text-frost/40 py-4 text-center">No projects yet.</p>
+            <div class="glass-card p-6 text-center font-mono text-xs text-frost/40">
+              No projects yet.
+            </div>
           )}
         </div>
       </section>
+
+      <!-- Contracts -->
+      <section>
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="font-mono text-xs tracking-[0.2em] uppercase text-frost">
+            <span class="text-neon-cyan">$</span> ls outsourcing/ --reverse
+          </h2>
+          <a href="/projects" class="font-mono text-xs text-frost hover:text-plasma transition-colors duration-200">
+            View all &rarr;
+          </a>
+        </div>
+        <div class="space-y-4">
+          {outsourcings.length > 0 ? (
+            outsourcings.slice(0, 2).map((item) => (
+              <MagneticCard class="glass-card">
+                <a href={item.data.link || '#'} class="group block p-6">
+                  <p class="font-mono text-xs text-frost/50 mb-3">
+                    {item.data.name}
+                    {item.data.client && (
+                      <span> &middot; <span class="text-neon-cyan/60">{item.data.client}</span></span>
+                    )}
+                  </p>
+                  <h3 class="font-display text-lg font-bold text-plasma mb-2 group-hover:text-neon-cyan transition-colors duration-200">
+                    {item.data.description}
+                  </h3>
+                  {item.data.link && (
+                    <div class="flex items-center gap-2 font-mono text-xs text-frost/40">
+                      <span>&rarr;</span>
+                      <span class="truncate">{item.data.link}</span>
+                    </div>
+                  )}
+                </a>
+              </MagneticCard>
+            ))
+          ) : (
+            <div class="glass-card p-6 text-center font-mono text-xs text-frost/40">
+              No contracts yet.
+            </div>
+          )}
+        </div>
+      </section>
+
     </div>
   </main>
 
   <Footer />
 </BaseLayout>
+
+<script>
+  (function() {
+    var el = document.getElementById('typewriter');
+    if (!el) return;
+    var texts = [
+      '$ whoami',
+      '$ cat /etc/motd',
+      '$ echo $USER',
+      '$ uname -a',
+    ];
+    var i = 0;
+    var j = 0;
+    var typing = true;
+    var pauseEnd = 0;
+
+    function tick() {
+      var now = Date.now();
+      if (!typing && now < pauseEnd) {
+        requestAnimationFrame(tick);
+        return;
+      }
+
+      var current = texts[i % texts.length];
+
+      if (typing) {
+        if (j <= current.length) {
+          el.textContent = current.substring(0, j);
+          j++;
+          setTimeout(tick, 60 + Math.random() * 40);
+          return;
+        }
+        // finished typing, pause then delete
+        typing = false;
+        pauseEnd = now + 2000;
+        requestAnimationFrame(tick);
+      } else {
+        if (j > 0) {
+          j--;
+          el.textContent = current.substring(0, j);
+          setTimeout(tick, 25 + Math.random() * 20);
+          return;
+        }
+        // finished deleting, next text
+        typing = true;
+        i++;
+        j = 0;
+        setTimeout(tick, 150);
+      }
+    }
+
+    tick();
+  })();
+</script>
