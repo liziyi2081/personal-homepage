@@ -1,10 +1,10 @@
 ---
+import { getCollection } from 'astro:content';
 import { statSync } from 'node:fs';
 import { resolve } from 'node:path';
-import BaseLayout from '../layouts/BaseLayout.astro';
 import Footer from '../components/Footer.astro';
 import MagneticCard from '../components/MagneticCard.astro';
-import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
 
 const allProjects = (await getCollection('projects')).sort(
   (a, b) => statSync(resolve(contentDir, 'projects', b.id)).mtimeMs - statSync(resolve(contentDir, 'projects', a.id)).mtimeMs
@@ -96,7 +96,7 @@ function getFileDates(id: string): { created: string; updated: string } {
 
     <div class="mt-12">
       <a href={base} class="font-mono text-xs text-frost hover:text-plasma transition-colors duration-200">
-        &larr; Homelarr; 回到首页larr; 回到首页
+        &larr; 回到首页
       </a>
     </div>
   </main>
