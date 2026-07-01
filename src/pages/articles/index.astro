@@ -1,0 +1,86 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import { getCollection } from 'astro:content';
+
+const articles = (await getCollection('articles')).sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
+);
+const allTags = [...new Set(articles.flatMap((a) => a.data.tags))];
+const selectedTag = Astro.url.searchParams.get('tag');
+const filteredArticles = selectedTag
+  ? articles.filter((a) => a.data.tags.includes(selectedTag))
+  : articles;
+---
+
+<BaseLayout>
+  <Header />
+  <main class="max-w-6xl mx-auto px-6 lg:px-12 py-20">
+    <p class="font-mono text-sm text-forge-orange mb-2">$ ls articles/</p>
+    <h1 class="font-display text-4xl md:text-5xl font-bold text-parchment mb-12">Articles</h1>
+
+    <!-- Tag filter -->
+    {
+      allTags.length > 0 && (
+        <div class="flex flex-wrap gap-2 mb-12">
+          <a
+            href="/articles"
+            class={`font-mono text-xs tracking-wider uppercase px-4 py-1.5 border transition-colors duration-200 ${
+              !selectedTag ? 'border-forge-orange text-forge-orange' : 'border-stone/20 text-stone hover:border-stone/50'
+            }`}
+          >
+            All
+          </a>
+          {allTags.map((tag) => (
+            <a
+              href={`/articles?tag=${tag}`}
+              class={`font-mono text-xs tracking-wider uppercase px-4 py-1.5 border transition-colors duration-200 ${
+                selectedTag === tag ? 'border-forge-orange text-forge-orange' : 'border-stone/20 text-stone hover:border-stone/50'
+              }`}
+            >
+              {tag}
+            </a>
+          ))}
+        </div>
+      )
+    }
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-stone/20">
+      {filteredArticles.length > 0 ? (
+        filteredArticles.map((article) => (
+          <a
+            href={`/articles/${article.slug}`}
+            class="group block border border-stone/20 bg-iron-black hover:border-forge-orange transition-colors duration-200 p-6"
+          >
+            <p class="font-mono text-xs text-stone/60 mb-3">
+              {article.data.date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+              })}
+            </p>
+            <h2 class="font-display text-lg font-bold text-parchment mb-2 group-hover:text-forge-orange transition-colors duration-200">
+              {article.data.title}
+            </h2>
+            <p class="font-body text-sm text-stone leading-relaxed mb-4">
+              {article.data.description}
+            </p>
+            <div class="flex flex-wrap gap-2">
+              {article.data.tags.map((tag) => (
+                <span class="font-mono text-[10px] tracking-wider uppercase text-stone/50 border border-stone/20 px-2 py-0.5">
+                  {tag}
+                </span>
+              ))}
+            </div>
+          </a>
+        ))
+      ) : (
+        <p class="col-span-full text-center font-mono text-sm text-stone/50 py-12">
+          {selectedTag ? `No articles tagged "${selectedTag}".` : 'No articles yet.'}
+        </p>
+      )}
+    </div>
+  </main>
+  <Footer />
+</BaseLayout>

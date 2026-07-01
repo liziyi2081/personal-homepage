@@ -1,0 +1,49 @@
+{
+  "$ref": "#/definitions/about",
+  "definitions": {
+    "about": {
+      "type": "object",
+      "properties": {
+        "nickname": {
+          "type": "string"
+        },
+        "avatar": {
+          "type": "string"
+        },
+        "bio": {
+          "type": "string"
+        },
+        "tagline": {
+          "type": "string"
+        },
+        "social": {
+          "type": "object",
+          "properties": {
+            "github": {
+              "type": "string"
+            },
+            "twitter": {
+              "type": "string"
+            },
+            "email": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "$schema": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "nickname",
+        "avatar",
+        "bio",
+        "tagline",
+        "social"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

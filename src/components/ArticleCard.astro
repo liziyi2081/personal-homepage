@@ -1,0 +1,35 @@
+---
+import type { CollectionEntry } from 'astro:content';
+
+export interface Props {
+  article: CollectionEntry<'articles'>;
+}
+
+const { article } = Astro.props;
+---
+
+<a
+  href={`/articles/${article.slug}`}
+  class="group block border border-stone/20 bg-iron-black hover:border-forge-orange transition-colors duration-200 p-6"
+>
+  <p class="font-mono text-xs text-stone/60 mb-3">
+    {article.data.date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    })}
+  </p>
+  <h3 class="font-display text-lg font-bold text-parchment mb-2 group-hover:text-forge-orange transition-colors duration-200">
+    {article.data.title}
+  </h3>
+  <p class="font-body text-sm text-stone leading-relaxed mb-4">
+    {article.data.description}
+  </p>
+  <div class="flex flex-wrap gap-2">
+    {article.data.tags.map((tag) => (
+      <span class="font-mono text-[10px] tracking-wider uppercase text-stone/50 border border-stone/20 px-2 py-0.5">
+        {tag}
+      </span>
+    ))}
+  </div>
+</a>

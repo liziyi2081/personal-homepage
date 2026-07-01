@@ -1,0 +1,28 @@
+---
+export interface Props {
+  github?: string;
+  twitter?: string;
+  email?: string;
+  class?: string;
+}
+
+const { github, twitter, email, class: className = '' } = Astro.props;
+---
+
+<div class={`flex items-center gap-4 ${className}`}>
+  {github && (
+    <a href={github} target="_blank" rel="noopener noreferrer" class="font-mono text-xs text-stone hover:text-parchment transition-colors duration-200">
+      GH
+    </a>
+  )}
+  {twitter && (
+    <a href={twitter} target="_blank" rel="noopener noreferrer" class="font-mono text-xs text-stone hover:text-parchment transition-colors duration-200">
+      TW
+    </a>
+  )}
+  {email && (
+    <a href={`mailto:${email}`} class="font-mono text-xs text-stone hover:text-parchment transition-colors duration-200">
+      @
+    </a>
+  )}
+</div>
