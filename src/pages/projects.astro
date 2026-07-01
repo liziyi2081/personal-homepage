@@ -1,74 +1,90 @@
 ---
+import { statSync } from 'node:fs';
+import { resolve } from 'node:path';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Footer from '../components/Footer.astro';
 import MagneticCard from '../components/MagneticCard.astro';
 import { getCollection } from 'astro:content';
 
-const projects = await getCollection('projects');
+const allProjects = await getCollection('projects');
+
+const perPage = 5;
+const totalPages = Math.ceil(allProjects.length / perPage);
+const currentPage = Math.max(1, Math.min(totalPages, Number(Astro.url.searchParams.get('page')) || 1));
+const start = (currentPage - 1) * perPage;
+const projects = allProjects.slice(start, start + perPage);
+const base = import.meta.env.BASE_URL;
+
+function fmtDate(d: Date): string {
+  return d.toISOString().split('T')[0];
+}
+
+const contentDir = resolve(process.cwd(), 'src/content');
+function getFileDates(id: string): { created: string; updated: string } {
+  const filePath = resolve(contentDir, 'projects', id);
+  const stat = statSync(filePath);
+  return {
+    created: fmtDate(stat.birthtime),
+    updated: fmtDate(stat.mtime),
+  };
+}
 ---
 
 <BaseLayout>
   <main class="max-w-4xl mx-auto px-6 lg:px-12 py-20">
-    <p class="font-mono text-sm text-neon-cyan mb-2">$ ls projects/</p>
+    <p class="font-mono text-sm text-neon-cyan mb-2">$ gh repo list --limit 3</p>
     <h1 class="font-display text-4xl md:text-5xl font-bold text-plasma mb-12">
       Projects
     </h1>
 
-    <div class="space-y-6">
+    <div class="space-y-4">
       {projects.length > 0 ? (
-        projects.map((project, i) => (
-          <MagneticCard class="glass-card block">
-            <a
-              href={project.data.repo}
-              target="_blank"
-              rel="noopener noreferrer"
-              class="group block p-6"
-            >
-              <div class="flex items-start gap-6">
-                <span class="font-mono text-xs text-frost/30 mt-1 w-6">
-                  {String(i + 1).padStart(2, '0')}
-                </span>
-                <div class="hex-icon w-16 h-16 flex-shrink-0 border border-white/10">
-                  <span class="font-mono text-xl font-bold text-neon-cyan">
-                    {project.data.name[0]}
-                  </span>
-                </div>
-                <div class="min-w-0 flex-1">
-                  <div class="flex items-center gap-3 mb-2">
-                    <h2 class="font-display text-xl font-bold text-plasma group-hover:text-neon-cyan transition-colors duration-200">
-                      {project.data.name}
-                    </h2>
-                    {project.data.language && (
-                      <span class="font-mono text-[11px] text-frost/30">
-                        {project.data.language}
-                      </span>
-                    )}
-                    {project.data.stars > 0 && (
-                      <span class="font-mono text-[11px] text-frost/30">
-                        {project.data.stars} &star;
-                      </span>
-                    )}
-                  </div>
-                  <p class="font-body text-frost leading-relaxed mb-3">
-                    {project.data.description}
-                  </p>
-                  <p class="font-mono text-xs text-frost/20 truncate">
-                    {project.data.repo}
-                  </p>
-                </div>
-                <span class="font-mono text-xs text-frost/30 group-hover:text-neon-cyan transition-colors duration-200 mt-1">
-                  &nearr;
-                </span>
-              </div>
-            </a>
-          </MagneticCard>
-        ))
+        projects.map((project) => {
+          const dates = getFileDates(project.id);
+          return (
+            <MagneticCard class="glass-card block">
+              <a href={`${base}/projects/${project.slug}`} class="group block p-6 h-full flex flex-col">
+                <p class="font-mono text-xs text-frost/50 mb-3 shrink-0">
+                  created {dates.created} / updated {dates.updated}
+                </p>
+                <h2 class="font-display text-lg font-bold text-plasma mb-2 group-hover:text-neon-cyan transition-colors duration-200 truncate shrink-0">
+                  {project.data.name}
+                </h2>
+                <p class="font-body text-sm text-frost leading-relaxed line-clamp-2 overflow-hidden min-h-0">
+                  {project.data.description}
+                </p>
+              </a>
+            </MagneticCard>
+          );
+        })
       ) : (
         <p class="font-mono text-sm text-frost/40 text-center py-12">
-          No projects yet. Add yours in <code class="text-frost/60">src/content/projects/</code>.
+          No projects yet.
         </p>
       )}
     </div>
+
+    {totalPages > 1 && (
+      <nav class="flex items-center justify-center gap-4 mt-12 font-mono text-sm">
+        {currentPage > 1 ? (
+          <a href={`${base}/projects?page=${currentPage - 1}`} class="text-frost hover:text-plasma transition-colors duration-200">
+            &larr; Prev
+          </a>
+        ) : (
+          <span class="text-frost/20">&larr; Prev</span>
+        )}
+        <span class="text-frost/50">
+          {currentPage} / {totalPages}
+        </span>
+        {currentPage < totalPages ? (
+          <a href={`${base}/projects?page=${currentPage + 1}`} class="text-frost hover:text-plasma transition-colors duration-200">
+            Next &rarr;
+          </a>
+        ) : (
+          <span class="text-frost/20">Next &rarr;</span>
+        )}
+      </nav>
+    )}
   </main>
   <Footer />
 </BaseLayout>

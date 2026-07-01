@@ -1,0 +1,68 @@
+---
+import { statSync } from 'node:fs';
+import { resolve } from 'node:path';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Footer from '../../components/Footer.astro';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const projects = await getCollection('projects');
+  return projects.map((project) => ({
+    params: { slug: project.slug },
+    props: { project },
+  }));
+}
+
+const { project } = Astro.props;
+const { Content } = await project.render();
+const base = import.meta.env.BASE_URL;
+
+function fmtDate(d: Date): string {
+  return d.toISOString().split('T')[0];
+}
+
+const contentDir = resolve(process.cwd(), 'src/content');
+const filePath = resolve(contentDir, 'projects', project.id);
+const stat = statSync(filePath);
+const created = fmtDate(stat.birthtime);
+const updated = fmtDate(stat.mtime);
+---
+
+<BaseLayout>
+  <article class="max-w-3xl mx-auto px-6 lg:px-12 py-20">
+    <header class="mb-12">
+      <p class="font-mono text-xs text-frost/50 mb-4">
+        created {created} / updated {updated}
+      </p>
+      <h1 class="font-display text-4xl md:text-5xl font-bold text-plasma leading-tight mb-6">
+        {project.data.name}
+      </h1>
+      <p class="font-body text-lg text-frost/70 leading-relaxed">
+        {project.data.description}
+      </p>
+    </header>
+
+    <hr class="border-white/5 mb-12" />
+
+    <div class="prose max-w-none
+      prose-headings:font-display prose-headings:text-plasma prose-headings:font-bold
+      prose-h2:text-2xl prose-h2:mt-12 prose-h2:mb-6
+      prose-p:font-body prose-p:text-frost/70 prose-p:leading-relaxed
+      prose-a:text-neon-cyan prose-a:no-underline hover:prose-a:underline
+      prose-code:font-mono prose-code:text-sm prose-code:text-neon-cyan
+      prose-pre:bg-white/5 prose-pre:border prose-pre:border-white/10
+      prose-img:border prose-img:border-white/10
+      prose-li:text-frost/70
+      prose-strong:text-plasma
+    ">
+      <Content />
+    </div>
+
+    <hr class="border-white/5 mt-16 mb-8" />
+
+    <a href={`${base}/projects`} class="font-mono text-xs text-frost hover:text-plasma transition-colors duration-200">
+      &larr; All projects
+    </a>
+  </article>
+  <Footer />
+</BaseLayout>

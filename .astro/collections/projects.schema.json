@@ -31,7 +31,6 @@
       },
       "required": [
         "name",
-        "icon",
         "description",
         "repo"
       ],

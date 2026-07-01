@@ -19,9 +19,6 @@ export default {
         body: ['"Crimson Pro"', 'Georgia', 'serif'],
         mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
       },
-      borderRadius: {
-        none: '0',
-      },
       borderWidth: {
         hairline: '1px',
       },

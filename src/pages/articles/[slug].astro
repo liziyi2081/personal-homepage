@@ -13,6 +13,7 @@ export async function getStaticPaths() {
 
 const { article } = Astro.props;
 const { Content } = await article.render();
+const base = import.meta.env.BASE_URL;
 ---
 
 <BaseLayout>
@@ -58,7 +59,7 @@ const { Content } = await article.render();
 
     <hr class="border-white/5 mt-16 mb-8" />
 
-    <a href="/articles" class="font-mono text-xs text-frost hover:text-plasma transition-colors duration-200">
+    <a href={`${base}/articles`} class="font-mono text-xs text-frost hover:text-plasma transition-colors duration-200">
       &larr; All articles
     </a>
   </article>

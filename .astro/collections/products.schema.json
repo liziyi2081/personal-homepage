@@ -27,7 +27,6 @@
       },
       "required": [
         "name",
-        "icon",
         "description",
         "link"
       ],

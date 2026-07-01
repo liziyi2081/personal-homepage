@@ -4,7 +4,7 @@ const aboutCollection = defineCollection({
   type: 'data',
   schema: z.object({
     nickname: z.string(),
-    avatar: z.string(),
+    avatar: z.string().default('/public/images/icons/avatar.png'),
     bio: z.string(),
     tagline: z.string(),
     school: z.string().default(''),
@@ -25,7 +25,6 @@ const articlesCollection = defineCollection({
     date: z.date(),
     description: z.string(),
     tags: z.array(z.string()).default([]),
-    image: z.string().optional(),
   }),
 });
 
@@ -33,7 +32,7 @@ const productsCollection = defineCollection({
   type: 'content',
   schema: z.object({
     name: z.string(),
-    icon: z.string(),
+    icon: z.string().optional(),
     description: z.string(),
     link: z.string().url(),
     order: z.number().default(0),
@@ -44,7 +43,7 @@ const projectsCollection = defineCollection({
   type: 'content',
   schema: z.object({
     name: z.string(),
-    icon: z.string(),
+    icon: z.string().optional(),
     description: z.string(),
     repo: z.string().url(),
     stars: z.number().default(0),

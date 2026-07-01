@@ -8,7 +8,8 @@
           "type": "string"
         },
         "avatar": {
-          "type": "string"
+          "type": "string",
+          "default": "/public/images/icons/avatar.png"
         },
         "bio": {
           "type": "string"
@@ -49,7 +50,6 @@
       },
       "required": [
         "nickname",
-        "avatar",
         "bio",
         "tagline",
         "social"

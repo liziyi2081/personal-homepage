@@ -42,7 +42,12 @@
 - **WHEN** 用户访问首页且统计卡片区域进入视口
 - **THEN** 4 张统计卡片中的数字以递增动画从 0 展示至最终值，动画时长约 800ms
 
-### Requirement: 伪终端 Section 标题
+### Requirement: 卡片统一模板
+系统 SHALL 为所有内容类目使用统一的卡片模板，包含日期行（created/updated）、标题和描述。空类目卡片所有字段显示 NULL，不可点击。
+
+#### Scenario: 空类目卡片
+- **WHEN** 首页某类目无内容
+- **THEN** 卡片日期显示 "created NULL / updated NULL"，标题显示 "NULL"，描述显示 "NULL"，卡片不可点击
 系统 SHALL 使用终端命令格式作为页面 section 标题。
 
 #### Scenario: Section 标题展示
