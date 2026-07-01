@@ -1,0 +1,325 @@
+---
+// BlueprintGrid.astro — particle network + floating geometry + grid + data pulses
+---
+<canvas
+  id="blueprint-grid"
+  aria-hidden="true"
+  style="position:fixed;inset:0;z-index:0;pointer-events:none;width:100%;height:100%;"
+></canvas>
+
+<script>
+  function initGrid() {
+    const canvas = document.getElementById('blueprint-grid') as HTMLCanvasElement;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const isMobile = window.matchMedia('(max-width: 767px)').matches;
+
+    const GRID_SPACING = 60;
+    const DOT_COUNT = isMobile ? 50 : 120;
+    const GEO_COUNT = isMobile ? 2 : 5;
+    const CONNECT_DIST = isMobile ? 120 : 180;
+    const PULSE_COUNT = isMobile ? 2 : 5;
+
+    interface Dot {
+      x: number; y: number;
+      vx: number; vy: number;
+      size: number; alpha: number;
+      isNode: boolean;
+    }
+    interface Geo {
+      x: number; y: number;
+      angle: number; size: number;
+      alpha: number;
+      vx: number; vy: number; va: number;
+      type: 'hex' | 'tri' | 'ring' | 'diamond';
+    }
+    interface Pulse {
+      fromIdx: number; toIdx: number;
+      t: number; speed: number;
+      color: 'cyan' | 'purple';
+    }
+
+    let dots: Dot[] = [];
+    let geos: Geo[] = [];
+    let pulses: Pulse[] = [];
+
+    function resize() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+
+    function spawnDots() {
+      dots = [];
+      for (let i = 0; i < DOT_COUNT; i++) {
+        const isNode = i < DOT_COUNT * 0.08;
+        dots.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          vx: (Math.random() - 0.5) * 0.5,
+          vy: (Math.random() - 0.5) * 0.5,
+          size: isNode ? (Math.random() * 2 + 2) : (Math.random() * 1.5 + 0.5),
+          alpha: isNode ? 0.7 : (Math.random() * 0.18 + 0.12),
+          isNode,
+        });
+      }
+    }
+
+    function spawnGeos() {
+      geos = [];
+      for (let i = 0; i < GEO_COUNT; i++) {
+        const types: Geo['type'][] = ['hex', 'tri', 'ring', 'diamond'];
+        geos.push({
+          x: Math.random() * canvas.width * 0.6 + canvas.width * 0.2,
+          y: Math.random() * canvas.height * 0.6 + canvas.height * 0.2,
+          angle: Math.random() * Math.PI * 2,
+          size: 60 + Math.random() * 100,
+          alpha: 0.06 + Math.random() * 0.04,
+          vx: (Math.random() - 0.5) * 0.12,
+          vy: (Math.random() - 0.5) * 0.12,
+          va: (Math.random() - 0.5) * 0.003,
+          type: types[i % types.length],
+        });
+      }
+    }
+
+    function findConnectedPairs(): [number, number][] {
+      const pairs: [number, number][] = [];
+      const sqDist = CONNECT_DIST * CONNECT_DIST;
+      for (let i = 0; i < dots.length; i++) {
+        for (let j = i + 1; j < dots.length; j++) {
+          const dx = dots[i].x - dots[j].x;
+          const dy = dots[i].y - dots[j].y;
+          if (dx * dx + dy * dy < sqDist) {
+            pairs.push([i, j]);
+          }
+        }
+      }
+      return pairs;
+    }
+
+    function spawnPulses() {
+      pulses = [];
+      const pairs = findConnectedPairs();
+      if (pairs.length === 0) return;
+      for (let i = 0; i < PULSE_COUNT; i++) {
+        const pair = pairs[Math.floor(Math.random() * pairs.length)];
+        pulses.push({
+          fromIdx: pair[0],
+          toIdx: pair[1],
+          t: Math.random(),
+          speed: 0.003 + Math.random() * 0.005,
+          color: Math.random() > 0.5 ? 'cyan' : 'purple',
+        });
+      }
+    }
+
+    resize();
+    spawnDots();
+    spawnGeos();
+    if (!prefersReducedMotion) spawnPulses();
+
+    window.addEventListener('resize', () => {
+      resize();
+      spawnDots();
+      spawnGeos();
+      if (!prefersReducedMotion) spawnPulses();
+    });
+
+    function drawShape(geo: Geo) {
+      ctx.save();
+      ctx.translate(geo.x, geo.y);
+      ctx.rotate(geo.angle);
+      ctx.beginPath();
+
+      const s = geo.size;
+      switch (geo.type) {
+        case 'hex':
+          for (let i = 0; i < 6; i++) {
+            const a = (Math.PI / 3) * i - Math.PI / 2;
+            const sx = s * Math.cos(a), sy = s * Math.sin(a);
+            i === 0 ? ctx.moveTo(sx, sy) : ctx.lineTo(sx, sy);
+          }
+          ctx.closePath();
+          break;
+        case 'tri':
+          for (let i = 0; i < 3; i++) {
+            const a = (Math.PI * 2 / 3) * i - Math.PI / 2;
+            const sx = s * Math.cos(a), sy = s * Math.sin(a);
+            i === 0 ? ctx.moveTo(sx, sy) : ctx.lineTo(sx, sy);
+          }
+          ctx.closePath();
+          break;
+        case 'diamond':
+          ctx.moveTo(0, -s);
+          ctx.lineTo(s * 0.7, 0);
+          ctx.lineTo(0, s);
+          ctx.lineTo(-s * 0.7, 0);
+          ctx.closePath();
+          break;
+        case 'ring':
+          ctx.arc(0, 0, s, 0, Math.PI * 2);
+          break;
+      }
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function animateGeo(geo: Geo) {
+      geo.x += geo.vx;
+      geo.y += geo.vy;
+      geo.angle += geo.va;
+      if (geo.x < -150) geo.x = canvas.width + 150;
+      if (geo.x > canvas.width + 150) geo.x = -150;
+      if (geo.y < -150) geo.y = canvas.height + 150;
+      if (geo.y > canvas.height + 150) geo.y = -150;
+    }
+
+    function animateDot(dot: Dot) {
+      dot.x += dot.vx;
+      dot.y += dot.vy;
+      if (dot.x < -10) dot.x = canvas.width + 10; else if (dot.x > canvas.width + 10) dot.x = -10;
+      if (dot.y < -10) dot.y = canvas.height + 10; else if (dot.y > canvas.height + 10) dot.y = -10;
+    }
+
+    const neonCyan = { r: 0, g: 229, b: 255 };
+    const neonPurple = { r: 168, g: 85, b: 247 };
+
+    function draw() {
+      if (!ctx || !canvas) return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // --- Grid lines ---
+      ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+      ctx.lineWidth = 0.5;
+      for (let x = GRID_SPACING; x < canvas.width; x += GRID_SPACING) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, canvas.height);
+        ctx.stroke();
+      }
+      for (let y = GRID_SPACING; y < canvas.height; y += GRID_SPACING) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(canvas.width, y);
+        ctx.stroke();
+      }
+
+      // --- Particle connections ---
+      const sqDist = CONNECT_DIST * CONNECT_DIST;
+      const connectedPairs: [number, number][] = [];
+
+      for (let i = 0; i < dots.length; i++) {
+        for (let j = i + 1; j < dots.length; j++) {
+          const dx = dots[i].x - dots[j].x;
+          const dy = dots[i].y - dots[j].y;
+          const distSq = dx * dx + dy * dy;
+          if (distSq < sqDist) {
+            connectedPairs.push([i, j]);
+            const dist = Math.sqrt(distSq);
+            const baseAlpha = (1 - dist / CONNECT_DIST) * 0.25;
+            const isNodeLink = dots[i].isNode && dots[j].isNode;
+            const alpha = isNodeLink ? baseAlpha * 1.6 : baseAlpha;
+            const mid = (dots[i].x + dots[j].x) / (canvas.width || 1);
+            const r = neonCyan.r + (neonPurple.r - neonCyan.r) * mid;
+            const g = neonCyan.g + (neonPurple.g - neonCyan.g) * mid;
+            const b = neonCyan.b + (neonPurple.b - neonCyan.b) * mid;
+            ctx.strokeStyle = `rgba(${Math.round(r)},${Math.round(g)},${Math.round(b)},${alpha.toFixed(3)})`;
+            ctx.lineWidth = isNodeLink ? 1.0 : 0.5;
+            ctx.beginPath();
+            ctx.moveTo(dots[i].x, dots[i].y);
+            ctx.lineTo(dots[j].x, dots[j].y);
+            ctx.stroke();
+          }
+        }
+      }
+
+      // --- Floating geometry ---
+      for (const geo of geos) {
+        ctx.strokeStyle = `rgba(0, 229, 255, ${geo.alpha})`;
+        ctx.lineWidth = 1.2;
+        drawShape(geo);
+        animateGeo(geo);
+      }
+
+      // --- Dots ---
+      for (const dot of dots) {
+        if (dot.isNode) {
+          const grad = ctx.createRadialGradient(dot.x, dot.y, 0, dot.x, dot.y, 8);
+          grad.addColorStop(0, `rgba(0, 229, 255, ${dot.alpha})`);
+          grad.addColorStop(1, 'rgba(0, 229, 255, 0)');
+          ctx.fillStyle = grad;
+          ctx.beginPath();
+          ctx.arc(dot.x, dot.y, 8, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.fillStyle = `rgba(255, 255, 255, 0.9)`;
+          ctx.beginPath();
+          ctx.arc(dot.x, dot.y, dot.size, 0, Math.PI * 2);
+          ctx.fill();
+        } else {
+          ctx.fillStyle = `rgba(168, 85, 247, ${dot.alpha})`;
+          ctx.beginPath();
+          ctx.arc(dot.x, dot.y, dot.size, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        animateDot(dot);
+      }
+
+      // --- Data pulses ---
+      for (const pulse of pulses) {
+        const from = dots[pulse.fromIdx];
+        const to = dots[pulse.toIdx];
+        if (!from || !to) continue;
+
+        pulse.t += pulse.speed;
+        if (pulse.t >= 1) {
+          // Jump to a new connection
+          pulse.t = 0;
+          if (connectedPairs.length > 0) {
+            const pair = connectedPairs[Math.floor(Math.random() * connectedPairs.length)];
+            pulse.fromIdx = pair[0];
+            pulse.toIdx = pair[1];
+          }
+        }
+
+        const px = from.x + (to.x - from.x) * pulse.t;
+        const py = from.y + (to.y - from.y) * pulse.t;
+
+        const color = pulse.color === 'cyan'
+          ? { r: 0, g: 229, b: 255 }
+          : { r: 168, g: 85, b: 247 };
+
+        // Outer glow
+        const glow = ctx.createRadialGradient(px, py, 0, px, py, 12);
+        glow.addColorStop(0, `rgba(${color.r},${color.g},${color.b},0.7)`);
+        glow.addColorStop(0.3, `rgba(${color.r},${color.g},${color.b},0.3)`);
+        glow.addColorStop(1, `rgba(${color.r},${color.g},${color.b},0)`);
+        ctx.fillStyle = glow;
+        ctx.beginPath();
+        ctx.arc(px, py, 12, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Bright core
+        ctx.fillStyle = `rgba(255, 255, 255, 0.9)`;
+        ctx.beginPath();
+        ctx.arc(px, py, 2.5, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      if (!prefersReducedMotion) {
+        requestAnimationFrame(draw);
+      }
+    }
+
+    if (prefersReducedMotion) {
+      draw();
+    } else {
+      requestAnimationFrame(draw);
+    }
+  }
+
+  initGrid();
+</script>

@@ -1,10 +1,12 @@
 ---
 import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
+import AuroraGlow from '../components/AuroraGlow.astro';
+import BlueprintGrid from '../components/BlueprintGrid.astro';
 import '../styles/global.css';
 ---
 
 <!doctype html>
-<html lang="en" class="bg-iron-black text-parchment">
+<html lang="en" class="bg-midnight text-plasma">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -20,7 +22,35 @@ import '../styles/global.css';
     <!-- Umami Analytics -->
     <script defer src="https://cloud.umami.is/script.js" data-website-id="YOUR_WEBSITE_ID"></script>
   </head>
-  <body class="min-h-screen antialiased">
-    <slot />
+  <body class="min-h-screen antialiased relative">
+    <AuroraGlow />
+    <BlueprintGrid />
+    <!-- Cursor glow -->
+    <div
+      id="cursor-glow"
+      aria-hidden="true"
+      style="position:fixed;z-index:1;pointer-events:none;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(0,229,255,0.06) 0%,transparent 70%);transform:translate(-1000px,-1000px);transition:transform 0.4s ease-out;"
+    ></div>
+    <div class="relative z-10">
+      <slot />
+    </div>
+    <script>
+      (function() {
+        var glow = document.getElementById('cursor-glow');
+        if (!glow) return;
+        var isMobile = window.matchMedia('(max-width: 767px)').matches;
+        if (isMobile) { glow.style.display = 'none'; return; }
+        var ticking = false;
+        document.addEventListener('mousemove', function(e) {
+          if (!ticking) {
+            requestAnimationFrame(function() {
+              glow.style.transform = 'translate(' + (e.clientX - 250) + 'px, ' + (e.clientY - 250) + 'px)';
+              ticking = false;
+            });
+            ticking = true;
+          }
+        });
+      })();
+    </script>
   </body>
 </html>

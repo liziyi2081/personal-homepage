@@ -1,0 +1,92 @@
+---
+// AuroraGlow.astro — 4 large radial-gradient blobs, CSS-only aurora effect
+---
+<div class="aurora-layer" aria-hidden="true">
+  <div class="aurora-blob aurora-blob-1"></div>
+  <div class="aurora-blob aurora-blob-2"></div>
+  <div class="aurora-blob aurora-blob-3"></div>
+  <div class="aurora-blob aurora-blob-4"></div>
+</div>
+
+<style is:global>
+  .aurora-layer {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .aurora-blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(120px);
+  }
+
+  .aurora-blob-1 {
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(0, 229, 255, 0.16) 0%, transparent 70%);
+    top: -10%;
+    left: -5%;
+    animation: aurora-float-1 25s ease-in-out infinite;
+  }
+
+  .aurora-blob-2 {
+    width: 550px;
+    height: 550px;
+    background: radial-gradient(circle, rgba(168, 85, 247, 0.14) 0%, transparent 70%);
+    bottom: -15%;
+    right: -5%;
+    animation: aurora-float-2 30s ease-in-out infinite;
+  }
+
+  .aurora-blob-3 {
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(59, 130, 246, 0.14) 0%, transparent 70%);
+    top: 40%;
+    left: 50%;
+    animation: aurora-float-3 20s ease-in-out infinite;
+  }
+
+  .aurora-blob-4 {
+    width: 450px;
+    height: 450px;
+    background: radial-gradient(circle, rgba(0, 229, 255, 0.10) 0%, rgba(168, 85, 247, 0.07) 50%, transparent 70%);
+    top: 5%;
+    right: 10%;
+    animation: aurora-float-4 35s ease-in-out infinite;
+  }
+
+  @keyframes aurora-float-1 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    25% { transform: translate(60px, 40px) scale(1.1); }
+    50% { transform: translate(20px, -30px) scale(0.9); }
+    75% { transform: translate(-40px, 20px) scale(1.05); }
+  }
+
+  @keyframes aurora-float-2 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(-50px, -30px) scale(1.15); }
+    66% { transform: translate(30px, 20px) scale(0.85); }
+  }
+
+  @keyframes aurora-float-3 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(-30px, 40px) scale(1.2); }
+  }
+
+  @keyframes aurora-float-4 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    25% { transform: translate(-40px, -20px) scale(1.1); }
+    50% { transform: translate(30px, -50px) scale(0.9); }
+    75% { transform: translate(-10px, 30px) scale(1.05); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .aurora-blob {
+      animation: none !important;
+    }
+  }
+</style>

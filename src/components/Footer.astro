@@ -1,19 +1,24 @@
 ---
-const currentYear = new Date().getFullYear();
+const now = new Date();
+const currentYear = now.getFullYear();
+const buildDate = now.toISOString().split('T')[0];
+
+const SITE_BIRTHDAY = new Date('2026-06-01');
+const uptimeDays = Math.floor((now.getTime() - SITE_BIRTHDAY.getTime()) / (1000 * 60 * 60 * 24));
 ---
 
-<footer class="border-t border-stone/20 py-8 px-6 lg:px-12 max-w-6xl mx-auto">
+<footer class="border-t border-white/5 py-8 px-6 lg:px-12 max-w-6xl mx-auto">
   <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
     <div class="flex gap-6">
-      <a href="https://github.com/liziyi" class="font-mono text-xs text-stone hover:text-parchment transition-colors duration-200">
+      <a href="https://github.com/liziyi" class="font-mono text-xs text-frost hover:text-plasma transition-colors duration-200">
         GitHub
       </a>
-      <a href="mailto:liziyi@example.com" class="font-mono text-xs text-stone hover:text-parchment transition-colors duration-200">
+      <a href="mailto:liziyi@example.com" class="font-mono text-xs text-frost hover:text-plasma transition-colors duration-200">
         Email
       </a>
     </div>
-    <p class="font-mono text-xs text-stone/60">
-      &copy; {currentYear} Built with Astro &amp; shipped from GitHub
+    <p class="font-mono text-xs text-frost/50">
+      <span class="text-neon-cyan">[SYS]</span> ready &middot; ⬡ running &middot; built {buildDate} &middot; uptime {uptimeDays}d
     </p>
   </div>
 </footer>

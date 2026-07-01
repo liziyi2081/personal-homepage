@@ -2,92 +2,107 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import MagneticCard from '../components/MagneticCard.astro';
+import RingMetric from '../components/RingMetric.astro';
 import { getCollection } from 'astro:content';
 
 const about = await getCollection('about');
 const articles = (await getCollection('articles'))
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
   .slice(0, 3);
+const allArticles = await getCollection('articles');
 const products = await getCollection('products');
 const projects = await getCollection('projects');
 const profile = about[0]?.data;
+
+const SITE_BIRTHDAY = new Date('2026-06-01');
+const uptimeDays = Math.floor((Date.now() - SITE_BIRTHDAY.getTime()) / (1000 * 60 * 60 * 24));
+const uptimePct = Math.min(100, Math.round((uptimeDays / 365) * 100));
 ---
 
 <BaseLayout>
   <Header />
 
   <main class="max-w-6xl mx-auto px-6 lg:px-12">
-    <!-- Hero: signature $ whoami -->
+    <!-- Hero -->
     <section class="py-24 md:py-36">
-      <p class="font-mono text-sm text-forge-orange mb-4 animate-fade-in tracking-wide">
-        $ whoami
+      <p class="font-mono text-sm text-neon-cyan mb-4 animate-fade-in tracking-wide">
+        $ whoami<span class="cursor-blink text-neon-cyan">█</span>
       </p>
       {
         profile && (
           <>
-            <h1 class="font-display text-5xl md:text-7xl font-bold text-parchment leading-tight mb-6">
+            <h1 class="font-display text-5xl md:text-7xl font-bold leading-tight mb-6 text-gradient">
               {profile.nickname}
             </h1>
-            <p class="font-body text-xl md:text-2xl text-stone leading-relaxed max-w-2xl italic">
+            <p class="font-body text-xl md:text-2xl text-frost leading-relaxed max-w-2xl italic">
               {profile.tagline}
             </p>
-            <p class="mt-6 font-body text-base text-stone/70 max-w-xl leading-relaxed">
+            <p class="mt-6 font-body text-base text-frost/70 max-w-xl leading-relaxed">
               {profile.bio}
             </p>
           </>
         )
       }
+
+      <!-- Ring metrics -->
+      <div class="mt-12 flex flex-wrap gap-8 md:gap-14">
+        <RingMetric value={allArticles.length} max={10} label="articles" />
+        <RingMetric value={projects.length} max={10} label="projects" />
+        <RingMetric value={uptimePct} max={100} label="uptime" unit="%" />
+      </div>
     </section>
 
-    <hr class="border-stone/20" />
+    <hr class="border-white/5" />
 
     <!-- Featured Articles -->
     <section class="py-20">
       <div class="flex items-center justify-between mb-10">
-        <h2 class="font-mono text-xs tracking-[0.2em] uppercase text-stone">
-          Featured
+        <h2 class="font-mono text-xs tracking-[0.2em] uppercase text-frost">
+          <span class="text-neon-cyan">$</span> ls articles/ --latest
         </h2>
         <a
           href="/articles"
-          class="font-mono text-xs text-stone hover:text-parchment transition-colors duration-200"
+          class="font-mono text-xs text-frost hover:text-plasma transition-colors duration-200"
         >
           View all &rarr;
         </a>
       </div>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-px bg-stone/20">
-        <div class="bg-iron-black"></div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         {
           articles.length > 0 ? (
             articles.map((article) => (
-              <a
-                href={`/articles/${article.slug}`}
-                class="group block border border-stone/20 bg-iron-black hover:border-forge-orange transition-colors duration-200 p-6"
-              >
-                <p class="font-mono text-xs text-stone/60 mb-3">
-                  {article.data.date.toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric',
-                  })}
-                </p>
-                <h3 class="font-display text-lg font-bold text-parchment mb-2 group-hover:text-forge-orange transition-colors duration-200">
-                  {article.data.title}
-                </h3>
-                <p class="font-body text-sm text-stone leading-relaxed mb-4">
-                  {article.data.description}
-                </p>
-                <div class="flex flex-wrap gap-2">
-                  {article.data.tags.map((tag) => (
-                    <span class="font-mono text-[10px] tracking-wider uppercase text-stone/50 border border-stone/20 px-2 py-0.5">
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              </a>
+              <MagneticCard class="glass-card">
+                <a
+                  href={`/articles/${article.slug}`}
+                  class="group block p-6"
+                >
+                  <p class="font-mono text-xs text-frost/50 mb-3">
+                    {article.data.date.toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'short',
+                      day: 'numeric',
+                    })}
+                  </p>
+                  <h3 class="font-display text-lg font-bold text-plasma mb-2 group-hover:text-neon-cyan transition-colors duration-200">
+                    {article.data.title}
+                  </h3>
+                  <p class="font-body text-sm text-frost leading-relaxed mb-4">
+                    {article.data.description}
+                  </p>
+                  <div class="flex flex-wrap gap-2">
+                    {article.data.tags.map((tag) => (
+                      <span class="font-mono text-[10px] tracking-wider uppercase text-frost/40 border border-white/10 px-2 py-0.5">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </a>
+              </MagneticCard>
             ))
           ) : (
-            <div class="col-span-3 border border-stone/20 bg-iron-black p-6 text-center font-mono text-xs text-stone/50">
-              No articles yet. Write your first post in <code class="text-stone/70">src/content/articles/</code>.
+            <div class="col-span-3 glass-card p-6 text-center font-mono text-xs text-frost/40">
+              No articles yet. Write your first post in <code class="text-frost/60">src/content/articles/</code>.
             </div>
           )
         }
@@ -99,12 +114,12 @@ const profile = about[0]?.data;
       <!-- Products -->
       <section>
         <div class="flex items-center justify-between mb-8">
-          <h2 class="font-mono text-xs tracking-[0.2em] uppercase text-stone">
-            Products
+          <h2 class="font-mono text-xs tracking-[0.2em] uppercase text-frost">
+            <span class="text-neon-cyan">$</span> cat products.json | jq '.[]'
           </h2>
           <a
             href="/products"
-            class="font-mono text-xs text-stone hover:text-parchment transition-colors duration-200"
+            class="font-mono text-xs text-frost hover:text-plasma transition-colors duration-200"
           >
             View all &rarr;
           </a>
@@ -112,24 +127,23 @@ const profile = about[0]?.data;
         <div class="space-y-4">
           {products.length > 0 ? (
             products.map((product) => (
-              <a
-                href={`/products#${product.slug}`}
-                class="block border border-stone/20 bg-anvil-grey hover:border-forge-orange transition-colors duration-200 p-5"
-              >
-                <div class="flex items-center gap-4">
-                  <div class="w-10 h-10 flex-shrink-0 bg-stone/10 flex items-center justify-center">
-                    <span class="font-display text-xs font-bold text-stone">{product.data.name[0]}</span>
+              <MagneticCard class="glass-card block p-5">
+                <a href={`/products#${product.slug}`}>
+                  <div class="flex items-center gap-4">
+                    <div class="hex-icon w-12 h-12 flex-shrink-0 border border-white/10">
+                      <span class="font-mono text-xs font-bold text-neon-cyan">{product.data.name[0]}</span>
+                    </div>
+                    <div class="min-w-0">
+                      <h3 class="font-display text-sm font-bold text-plasma">{product.data.name}</h3>
+                      <p class="font-body text-xs text-frost/60 truncate">{product.data.description}</p>
+                    </div>
+                    <span class="ml-auto font-mono text-[10px] text-frost/30">&nearr;</span>
                   </div>
-                  <div class="min-w-0">
-                    <h3 class="font-display text-sm font-bold text-parchment">{product.data.name}</h3>
-                    <p class="font-body text-xs text-stone/70 truncate">{product.data.description}</p>
-                  </div>
-                  <span class="ml-auto font-mono text-[10px] text-stone/40">&nearr;</span>
-                </div>
-              </a>
+                </a>
+              </MagneticCard>
             ))
           ) : (
-            <p class="font-mono text-xs text-stone/50 py-4 text-center">No products yet.</p>
+            <p class="font-mono text-xs text-frost/40 py-4 text-center">No products yet.</p>
           )}
         </div>
       </section>
@@ -137,12 +151,12 @@ const profile = about[0]?.data;
       <!-- Projects -->
       <section>
         <div class="flex items-center justify-between mb-8">
-          <h2 class="font-mono text-xs tracking-[0.2em] uppercase text-stone">
-            Projects
+          <h2 class="font-mono text-xs tracking-[0.2em] uppercase text-frost">
+            <span class="text-neon-cyan">$</span> gh repo list --limit 5
           </h2>
           <a
             href="/projects"
-            class="font-mono text-xs text-stone hover:text-parchment transition-colors duration-200"
+            class="font-mono text-xs text-frost hover:text-plasma transition-colors duration-200"
           >
             View all &rarr;
           </a>
@@ -150,31 +164,32 @@ const profile = about[0]?.data;
         <div class="space-y-4">
           {projects.length > 0 ? (
             projects.map((project) => (
-              <a
-                href={project.data.repo}
-                target="_blank"
-                rel="noopener noreferrer"
-                class="block border border-stone/20 bg-anvil-grey hover:border-forge-orange transition-colors duration-200 p-5"
-              >
-                <div class="flex items-center gap-4">
-                  <div class="w-10 h-10 flex-shrink-0 bg-stone/10 flex items-center justify-center">
-                    <span class="font-display text-xs font-bold text-stone">{project.data.name[0]}</span>
-                  </div>
-                  <div class="min-w-0">
-                    <div class="flex items-center gap-2">
-                      <h3 class="font-display text-sm font-bold text-parchment">{project.data.name}</h3>
-                      {project.data.language && (
-                        <span class="font-mono text-[10px] text-stone/40">{project.data.language}</span>
-                      )}
+              <MagneticCard class="glass-card block p-5">
+                <a
+                  href={project.data.repo}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <div class="flex items-center gap-4">
+                    <div class="hex-icon w-12 h-12 flex-shrink-0 border border-white/10">
+                      <span class="font-mono text-xs font-bold text-neon-cyan">{project.data.name[0]}</span>
                     </div>
-                    <p class="font-body text-xs text-stone/70 truncate">{project.data.description}</p>
+                    <div class="min-w-0">
+                      <div class="flex items-center gap-2">
+                        <h3 class="font-display text-sm font-bold text-plasma">{project.data.name}</h3>
+                        {project.data.language && (
+                          <span class="font-mono text-[10px] text-frost/30">{project.data.language}</span>
+                        )}
+                      </div>
+                      <p class="font-body text-xs text-frost/60 truncate">{project.data.description}</p>
+                    </div>
+                    <span class="ml-auto font-mono text-[10px] text-frost/30">&nearr;</span>
                   </div>
-                  <span class="ml-auto font-mono text-[10px] text-stone/40">&nearr;</span>
-                </div>
-              </a>
+                </a>
+              </MagneticCard>
             ))
           ) : (
-            <p class="font-mono text-xs text-stone/50 py-4 text-center">No projects yet.</p>
+            <p class="font-mono text-xs text-frost/40 py-4 text-center">No projects yet.</p>
           )}
         </div>
       </section>

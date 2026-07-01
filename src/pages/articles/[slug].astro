@@ -20,47 +20,47 @@ const { Content } = await article.render();
   <Header />
   <article class="max-w-3xl mx-auto px-6 lg:px-12 py-20">
     <header class="mb-12">
-      <p class="font-mono text-xs text-stone/60 mb-4">
+      <p class="font-mono text-xs text-frost/50 mb-4">
         {article.data.date.toLocaleDateString('en-US', {
           year: 'numeric',
           month: 'long',
           day: 'numeric',
         })}
       </p>
-      <h1 class="font-display text-4xl md:text-5xl font-bold text-parchment leading-tight mb-6">
+      <h1 class="font-display text-4xl md:text-5xl font-bold text-plasma leading-tight mb-6">
         {article.data.title}
       </h1>
-      <p class="font-body text-lg text-stone/80 leading-relaxed">
+      <p class="font-body text-lg text-frost/70 leading-relaxed">
         {article.data.description}
       </p>
       <div class="flex flex-wrap gap-2 mt-6">
-        {article.data.tags.map((tag) => (
-          <span class="font-mono text-[10px] tracking-wider uppercase text-stone/50 border border-stone/20 px-2 py-0.5">
+        {article.data.tags.map((tag: string) => (
+          <span class="font-mono text-[10px] tracking-wider uppercase text-frost/40 border border-white/10 px-2 py-0.5">
             {tag}
           </span>
         ))}
       </div>
     </header>
 
-    <hr class="border-stone/20 mb-12" />
+    <hr class="border-white/5 mb-12" />
 
-    <div class="prose prose-invert prose-stone max-w-none
-      prose-headings:font-display prose-headings:text-parchment prose-headings:font-bold
+    <div class="prose max-w-none
+      prose-headings:font-display prose-headings:text-plasma prose-headings:font-bold
       prose-h2:text-2xl prose-h2:mt-12 prose-h2:mb-6
-      prose-p:font-body prose-p:text-stone/80 prose-p:leading-relaxed
-      prose-a:text-forge-orange prose-a:no-underline hover:prose-a:underline
-      prose-code:font-mono prose-code:text-sm prose-code:text-parchment
-      prose-pre:bg-anvil-grey prose-pre:border prose-pre:border-stone/20
-      prose-img:border prose-img:border-stone/20
-      prose-li:text-stone/80
-      prose-strong:text-parchment
+      prose-p:font-body prose-p:text-frost/70 prose-p:leading-relaxed
+      prose-a:text-neon-cyan prose-a:no-underline hover:prose-a:underline
+      prose-code:font-mono prose-code:text-sm prose-code:text-neon-cyan
+      prose-pre:bg-white/5 prose-pre:border prose-pre:border-white/10
+      prose-img:border prose-img:border-white/10
+      prose-li:text-frost/70
+      prose-strong:text-plasma
     ">
       <Content />
     </div>
 
-    <hr class="border-stone/20 mt-16 mb-8" />
+    <hr class="border-white/5 mt-16 mb-8" />
 
-    <a href="/articles" class="font-mono text-xs text-stone hover:text-parchment transition-colors duration-200">
+    <a href="/articles" class="font-mono text-xs text-frost hover:text-plasma transition-colors duration-200">
       &larr; All articles
     </a>
   </article>

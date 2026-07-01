@@ -2,6 +2,7 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import MagneticCard from '../components/MagneticCard.astro';
 import { getCollection } from 'astro:content';
 
 const products = (await getCollection('products')).sort(
@@ -12,8 +13,8 @@ const products = (await getCollection('products')).sort(
 <BaseLayout>
   <Header />
   <main class="max-w-4xl mx-auto px-6 lg:px-12 py-20">
-    <p class="font-mono text-sm text-forge-orange mb-2">$ ls products/</p>
-    <h1 class="font-display text-4xl md:text-5xl font-bold text-parchment mb-12">
+    <p class="font-mono text-sm text-neon-cyan mb-2">$ ls products/</p>
+    <h1 class="font-display text-4xl md:text-5xl font-bold text-plasma mb-12">
       Products
     </h1>
 
@@ -21,39 +22,41 @@ const products = (await getCollection('products')).sort(
       {products.length > 0 ? (
         products.map((product, i) => (
           <div id={product.slug}>
-            <a
-              href={product.data.link}
-              target="_blank"
-              rel="noopener noreferrer"
-              class="group block border border-stone/20 bg-anvil-grey hover:border-forge-orange transition-colors duration-200 p-6"
-            >
-              <div class="flex items-start gap-6">
-                <span class="font-mono text-xs text-stone/40 mt-1 w-6">
-                  {String(i + 1).padStart(2, '0')}
-                </span>
-                <div class="w-14 h-14 flex-shrink-0 bg-iron-black border border-stone/20 flex items-center justify-center">
-                  <span class="font-display text-xl font-bold text-stone">
-                    {product.data.name[0]}
+            <MagneticCard class="glass-card block">
+              <a
+                href={product.data.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="group block p-6"
+              >
+                <div class="flex items-start gap-6">
+                  <span class="font-mono text-xs text-frost/30 mt-1 w-6">
+                    {String(i + 1).padStart(2, '0')}
+                  </span>
+                  <div class="hex-icon w-16 h-16 flex-shrink-0 border border-white/10">
+                    <span class="font-mono text-xl font-bold text-neon-cyan">
+                      {product.data.name[0]}
+                    </span>
+                  </div>
+                  <div class="min-w-0 flex-1">
+                    <h2 class="font-display text-xl font-bold text-plasma group-hover:text-neon-cyan transition-colors duration-200 mb-2">
+                      {product.data.name}
+                    </h2>
+                    <p class="font-body text-frost leading-relaxed">
+                      {product.data.description}
+                    </p>
+                  </div>
+                  <span class="font-mono text-xs text-frost/30 group-hover:text-neon-cyan transition-colors duration-200 mt-1">
+                    &nearr;
                   </span>
                 </div>
-                <div class="min-w-0 flex-1">
-                  <h2 class="font-display text-xl font-bold text-parchment group-hover:text-forge-orange transition-colors duration-200 mb-2">
-                    {product.data.name}
-                  </h2>
-                  <p class="font-body text-stone leading-relaxed">
-                    {product.data.description}
-                  </p>
-                </div>
-                <span class="font-mono text-xs text-stone/40 group-hover:text-forge-orange transition-colors duration-200 mt-1">
-                  &nearr;
-                </span>
-              </div>
-            </a>
+              </a>
+            </MagneticCard>
           </div>
         ))
       ) : (
-        <p class="font-mono text-sm text-stone/50 text-center py-12">
-          No products yet. Add yours in <code class="text-stone/70">src/content/products/</code>.
+        <p class="font-mono text-sm text-frost/40 text-center py-12">
+          No products yet. Add yours in <code class="text-frost/60">src/content/products/</code>.
         </p>
       )}
     </div>

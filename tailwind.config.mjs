@@ -4,12 +4,15 @@ export default {
   theme: {
     extend: {
       colors: {
-        'iron-black': '#1a1a17',
-        'anvil-grey': '#262623',
-        'parchment': '#ece8e0',
-        'stone': '#96928b',
-        'forge-orange': '#e6813a',
-        'patina': '#4a9e8f',
+        'midnight': '#0d1117',
+        'void': '#131627',
+        'plasma': '#ffffff',
+        'frost': '#94a3b8',
+        'neon-cyan': '#00e5ff',
+        'neon-purple': '#a855f7',
+        'neon-blue': '#3b82f6',
+        'glass-border': 'rgba(255,255,255,0.08)',
+        'glass-highlight': 'rgba(255,255,255,0.12)',
       },
       fontFamily: {
         display: ['"Space Grotesk"', 'sans-serif'],
