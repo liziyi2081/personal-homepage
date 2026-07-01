@@ -36,18 +36,18 @@
 - **THEN** 卡片边框出现顺时针环绕的 Forge Orange 流光动画
 
 ### Requirement: 数字滚动动画
-系统 SHALL 在 Hero 区数据面板展示带有滚动动画的统计数据。
+系统 SHALL 在 Hero 区统计卡片展示数字从 0 到目标值的入场计数动画。
 
 #### Scenario: 页面加载时数字动画
-- **WHEN** 用户访问首页且 Hero 区进入视口
-- **THEN** 文章总数、项目总数、站点运行天数等统计数据以数字滚动动画展示至最终值
+- **WHEN** 用户访问首页且统计卡片区域进入视口
+- **THEN** 4 张统计卡片中的数字以递增动画从 0 展示至最终值，动画时长约 800ms
 
 ### Requirement: 伪终端 Section 标题
 系统 SHALL 使用终端命令格式作为页面 section 标题。
 
 #### Scenario: Section 标题展示
 - **WHEN** 首页加载
-- **THEN** Featured Articles 区标题展示为 `$ ls articles/ --latest` 格式，Products 区为 `$ cat products.json | jq '.[]'` 格式
+- **THEN** Articles 区标题展示为 `$ ls articles/ --latest`，Products 区为 `$ cat products.json | jq '.[]'`，Open Source 区为 `$ gh repo list --limit 3`，Contracts 区为 `$ ls outsourcing/ --reverse`
 
 ### Requirement: 六边形图标
 系统 SHALL 在产品/项目卡片中使用六边形（⬡）包裹的首字母替代方形盒子。

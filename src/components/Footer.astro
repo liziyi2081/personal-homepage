@@ -13,12 +13,43 @@ const uptimeDays = Math.floor((now.getTime() - SITE_BIRTHDAY.getTime()) / (1000 
       <a href="https://github.com/liziyi2081" class="font-mono text-xs text-frost hover:text-plasma transition-colors duration-200">
         GitHub
       </a>
-      <a href="mailto:liziyi@example.com" class="font-mono text-xs text-frost hover:text-plasma transition-colors duration-200">
+      <button id="email-btn" class="font-mono text-xs text-frost hover:text-plasma transition-colors duration-200 bg-transparent border-0 cursor-pointer p-0">
         Email
-      </a>
+      </button>
     </div>
     <p class="font-mono text-xs text-frost/50">
       <span class="text-neon-cyan">[SYS]</span> ready &middot; ⬡ running &middot; built {buildDate} &middot; uptime {uptimeDays}d
     </p>
   </div>
+
+  <div id="email-toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 opacity-0 pointer-events-none transition-opacity duration-300">
+    <div class="glass-card px-5 py-3 flex items-center gap-3">
+      <span class="font-mono text-xs text-neon-cyan">$ mailto:</span>
+      <span class="font-mono text-sm text-plasma">saibogongjiang.lzy@163.com</span>
+      <span class="font-mono text-[10px] text-frost/40 ml-2" id="toast-hint">copied</span>
+    </div>
+  </div>
 </footer>
+
+<script>
+  (function() {
+    var btn = document.getElementById('email-btn');
+    var toast = document.getElementById('email-toast');
+    var hint = document.getElementById('toast-hint');
+    if (!btn || !toast || !hint) return;
+    var timer = null;
+    btn.addEventListener('click', function() {
+      var email = 'saibogongjiang.lzy@163.com';
+      navigator.clipboard.writeText(email).catch(function() {});
+      hint.textContent = 'copied';
+      toast.style.opacity = '1';
+      toast.style.pointerEvents = 'auto';
+      if (timer) clearTimeout(timer);
+      timer = setTimeout(function() {
+        toast.style.opacity = '0';
+        toast.style.pointerEvents = 'none';
+        hint.textContent = '';
+      }, 3000);
+    });
+  })();
+</script>

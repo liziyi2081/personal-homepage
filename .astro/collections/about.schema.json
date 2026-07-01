@@ -16,6 +16,18 @@
         "tagline": {
           "type": "string"
         },
+        "school": {
+          "type": "string",
+          "default": ""
+        },
+        "hometown": {
+          "type": "string",
+          "default": ""
+        },
+        "location": {
+          "type": "string",
+          "default": ""
+        },
         "social": {
           "type": "object",
           "properties": {

@@ -6,7 +6,7 @@ const { class: className = '' } = Astro.props;
   class={`magnetic-card ${className}`}
   style="perspective: 800px;"
 >
-  <div class="magnetic-inner">
+  <div class="magnetic-inner h-full">
     <slot />
   </div>
 </div>
@@ -48,6 +48,7 @@ const { class: className = '' } = Astro.props;
 <style is:global>
   .magnetic-card {
     display: block;
+    height: 100%;
   }
 
   .magnetic-inner {

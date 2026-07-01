@@ -7,6 +7,9 @@ const aboutCollection = defineCollection({
     avatar: z.string(),
     bio: z.string(),
     tagline: z.string(),
+    school: z.string().default(''),
+    hometown: z.string().default(''),
+    location: z.string().default(''),
     social: z.object({
       github: z.string().optional(),
       twitter: z.string().optional(),
