@@ -1,10 +1,8 @@
 ---
 const now = new Date();
 const currentYear = now.getFullYear();
-const buildDate = now.toISOString().split('T')[0];
-
-const SITE_BIRTHDAY = new Date('2026-06-01');
-const uptimeDays = Math.floor((now.getTime() - SITE_BIRTHDAY.getTime()) / (1000 * 60 * 60 * 24));
+const pad = (n: number) => String(n).padStart(2, '0');
+const buildDate = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
 ---
 
 <footer class="border-t border-white/5 py-8 px-6 lg:px-12 max-w-6xl mx-auto">
@@ -18,7 +16,7 @@ const uptimeDays = Math.floor((now.getTime() - SITE_BIRTHDAY.getTime()) / (1000 
       </button>
     </div>
     <p class="font-mono text-xs text-frost/50">
-      <span class="text-neon-cyan">[SYS]</span> ready &middot; ⬡ running &middot; built {buildDate} &middot; uptime {uptimeDays}d
+      <span class="text-neon-cyan">[SYS]</span> ready &middot; ⬡ running &middot; built {buildDate}
     </p>
   </div>
 

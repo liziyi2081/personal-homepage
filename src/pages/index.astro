@@ -7,22 +7,21 @@ import MagneticCard from '../components/MagneticCard.astro';
 import StatCard from '../components/StatCard.astro';
 import { getCollection } from 'astro:content';
 
-const about = await getCollection('about');
-const allArticles = await getCollection('articles');
-const articles = allArticles
-  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
-  .slice(0, 3);
-const products = await getCollection('products');
-const projects = await getCollection('projects');
-const outsourcings = await getCollection('outsourcing');
-const profile = about[0]?.data;
-const base = import.meta.env.BASE_URL;
+const contentDir = resolve(process.cwd(), 'src/content');
 
 function fmtDate(d: Date): string {
-  return d.toISOString().split('T')[0];
+  const y = d.getFullYear();
+  const mo = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  const h = String(d.getHours()).padStart(2, '0');
+  const mi = String(d.getMinutes()).padStart(2, '0');
+  const s = String(d.getSeconds()).padStart(2, '0');
+  return `${y}-${mo}-${day} ${h}:${mi}:${s}`;
 }
 
-const contentDir = resolve(process.cwd(), 'src/content');
+function getMtime(collection: string, id: string): number {
+  return statSync(resolve(contentDir, collection, id)).mtimeMs;
+}
 
 function getFileDates(collection: string, id: string): { created: string; updated: string } {
   const filePath = resolve(contentDir, collection, id);
@@ -32,6 +31,20 @@ function getFileDates(collection: string, id: string): { created: string; update
     updated: fmtDate(stat.mtime),
   };
 }
+
+const about = await getCollection('about');
+const allArticles = await getCollection('articles');
+const articles = allArticles
+  .sort((a, b) => getMtime('articles', b.id) - getMtime('articles', a.id))
+  .slice(0, 3);
+const products = (await getCollection('products'))
+  .sort((a, b) => getMtime('products', b.id) - getMtime('products', a.id));
+const projects = (await getCollection('projects'))
+  .sort((a, b) => getMtime('projects', b.id) - getMtime('projects', a.id));
+const outsourcings = (await getCollection('outsourcing'))
+  .sort((a, b) => getMtime('outsourcing', b.id) - getMtime('outsourcing', a.id));
+const profile = about[0]?.data;
+const base = import.meta.env.BASE_URL;
 
 interface CardItem {
   title: string;
@@ -90,9 +103,9 @@ const outsourcingCards: CardItem[] = outsourcings[0]
                 <span class="text-neon-cyan">$</span> <span class="text-frost/30">cat</span> /etc/profile
               </p>
               <div class="glass-card p-4 space-y-1.5 inline-block">
-                <p class="text-plasma"><span class="text-frost/30">school</span>    = &quot;{profile.school || '...'}&quot;</p>
-                <p class="text-plasma"><span class="text-frost/30">hometown</span>  = &quot;{profile.hometown || '...'}&quot;</p>
-                <p class="text-plasma"><span class="text-frost/30">location</span>  = &quot;{profile.location || '...'}&quot;</p>
+                <p class="text-plasma font-mono"><span class="text-frost/30 inline-block w-[5.5em]">学校</span> = &quot;{profile.school || '...'}&quot;</p>
+                <p class="text-plasma font-mono"><span class="text-frost/30 inline-block w-[5.5em]">故乡</span> = &quot;{profile.hometown || '...'}&quot;</p>
+                <p class="text-plasma font-mono"><span class="text-frost/30 inline-block w-[5.5em]">当前位置</span> = &quot;{profile.location || '...'}&quot;</p>
               </div>
             </div>
           </>
@@ -101,10 +114,10 @@ const outsourcingCards: CardItem[] = outsourcings[0]
 
       <!-- Stat cards: Products → Articles → Open Source → Outsourcing -->
       <div class="mt-12 grid grid-cols-2 md:grid-cols-4 gap-4">
-        <StatCard value={products.length} label="Products" path="products" prefix="P" />
-        <StatCard value={allArticles.length} label="Articles" path="articles" prefix="A" />
-        <StatCard value={projects.length} label="Open Source" path="projects" prefix="OS" />
-        <StatCard value={outsourcings.length} label="Outsourcing" path="outsourcing" prefix="CT" />
+        <StatCard value={products.length} label="产品" path="products" prefix="P" tooltip="Self-designed and implemented software products, shipped to users." />
+        <StatCard value={allArticles.length} label="文章" path="articles" prefix="A" tooltip="Thoughts, experiences, and stories — sometimes sharing knowledge, sometimes just thinking out loud." />
+        <StatCard value={projects.length} label="开源项目" path="projects" prefix="OS" tooltip="Open source projects published on GitHub." />
+        <StatCard value={outsourcings.length} label="外包项目" path="outsourcing" prefix="CT" tooltip="Software outsourcing projects delivered for clients." />
       </div>
     </section>
 
@@ -120,8 +133,7 @@ const outsourcingCards: CardItem[] = outsourcings[0]
             <span class="text-neon-cyan">$</span> cat products.json | jq '.[]'
           </h2>
           <a href={`${base}/products`} class="font-mono text-xs text-frost hover:text-plasma transition-colors duration-200">
-            View all &rarr;
-          </a>
+            查看所有 &rarr;          </a>
         </div>
         <div class="flex-1 flex flex-col gap-4 min-h-0">
           {productCards.length > 0 ? (
@@ -163,8 +175,7 @@ const outsourcingCards: CardItem[] = outsourcings[0]
             <span class="text-neon-cyan">$</span> ls articles/ --latest
           </h2>
           <a href={`${base}/articles`} class="font-mono text-xs text-frost hover:text-plasma transition-colors duration-200">
-            View all &rarr;
-          </a>
+            查看所有 &rarr;          </a>
         </div>
         <div class="flex-1 flex flex-col gap-4 min-h-0">
           {articleCards.length > 0 ? (
@@ -206,8 +217,7 @@ const outsourcingCards: CardItem[] = outsourcings[0]
             <span class="text-neon-cyan">$</span> gh repo list --limit 3
           </h2>
           <a href={`${base}/projects`} class="font-mono text-xs text-frost hover:text-plasma transition-colors duration-200">
-            View all &rarr;
-          </a>
+            查看所有 &rarr;          </a>
         </div>
         <div class="flex-1 flex flex-col gap-4 min-h-0">
           {projectCards.length > 0 ? (
@@ -249,8 +259,7 @@ const outsourcingCards: CardItem[] = outsourcings[0]
             <span class="text-neon-cyan">$</span> ls outsourcing/ --reverse
           </h2>
           <a href={`${base}/outsourcing`} class="font-mono text-xs text-frost hover:text-plasma transition-colors duration-200">
-            View all &rarr;
-          </a>
+            查看所有 &rarr;          </a>
         </div>
         <div class="flex-1 flex flex-col gap-4 min-h-0">
           {outsourcingCards.length > 0 ? (

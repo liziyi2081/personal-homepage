@@ -1,9 +1,9 @@
 ---
+import { getCollection } from 'astro:content';
 import { statSync } from 'node:fs';
 import { resolve } from 'node:path';
-import BaseLayout from '../../layouts/BaseLayout.astro';
 import Footer from '../../components/Footer.astro';
-import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
 
 export async function getStaticPaths() {
   const projects = await getCollection('projects');
@@ -61,7 +61,7 @@ const updated = fmtDate(stat.mtime);
     <hr class="border-white/5 mt-16 mb-8" />
 
     <a href={`${base}/projects`} class="font-mono text-xs text-frost hover:text-plasma transition-colors duration-200">
-      &larr; All projects
+      &larr; 所有开源项目
     </a>
   </article>
   <Footer />

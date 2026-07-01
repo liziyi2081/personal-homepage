@@ -7,7 +7,7 @@ import MagneticCard from '../../components/MagneticCard.astro';
 import { getCollection } from 'astro:content';
 
 const allOutsourcings = (await getCollection('outsourcing')).sort(
-  (a, b) => a.data.order - b.data.order
+  (a, b) => statSync(resolve(contentDir, 'outsourcing', b.id)).mtimeMs - statSync(resolve(contentDir, 'outsourcing', a.id)).mtimeMs
 );
 
 const perPage = 5;
@@ -18,7 +18,13 @@ const outsourcings = allOutsourcings.slice(start, start + perPage);
 const base = import.meta.env.BASE_URL;
 
 function fmtDate(d: Date): string {
-  return d.toISOString().split('T')[0];
+  const y = d.getFullYear();
+  const mo = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  const h = String(d.getHours()).padStart(2, '0');
+  const mi = String(d.getMinutes()).padStart(2, '0');
+  const s = String(d.getSeconds()).padStart(2, '0');
+  return `${y}-${mo}-${day} ${h}:${mi}:${s}`;
 }
 
 const contentDir = resolve(process.cwd(), 'src/content');
@@ -87,6 +93,12 @@ function getFileDates(id: string): { created: string; updated: string } {
         )}
       </nav>
     )}
+
+    <div class="mt-12">
+      <a href={base} class="font-mono text-xs text-frost hover:text-plasma transition-colors duration-200">
+        &larr; Homelarr; 回到首页larr; 回到首页
+      </a>
+    </div>
   </main>
   <Footer />
 </BaseLayout>

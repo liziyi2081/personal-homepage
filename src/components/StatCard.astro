@@ -5,13 +5,14 @@ export interface Props {
   label: string;
   path: string;
   prefix?: string;
+  tooltip?: string;
 }
 
-const { value, label, path, prefix = 'C' } = Astro.props;
+const { value, label, path, prefix = 'C', tooltip } = Astro.props;
 const id = `stat-${label.toLowerCase().replace(/\s+/g, '-')}`;
 ---
 <div
-  class="glass-card p-6 flex flex-col justify-between"
+  class="glass-card p-6 flex flex-col justify-between group relative"
   id={id}
 >
   <div class="flex items-center justify-between mb-3">
@@ -23,9 +24,17 @@ const id = `stat-${label.toLowerCase().replace(/\s+/g, '-')}`;
     data-target={String(value)}
   >0</span>
   <span class="font-mono text-[12px] text-frost/20 mt-3">content/{path}/</span>
+  {tooltip && (
+    <div class="absolute left-1/2 -translate-x-1/2 top-full mt-2 w-56 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-20 pointer-events-none">
+      <div class="absolute left-1/2 -translate-x-1/2 bottom-full w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[6px] border-b-white/10"></div>
+      <div class="glass-card px-4 py-3">
+        <p class="font-body text-sm text-frost/80 leading-relaxed">{tooltip}</p>
+      </div>
+    </div>
+  )}
 </div>
 
-<script>
+<script define:vars={{ id }}>
   (function() {
     function animateCount(el, target, duration) {
       var start = performance.now();
@@ -41,7 +50,7 @@ const id = `stat-${label.toLowerCase().replace(/\s+/g, '-')}`;
       requestAnimationFrame(tick);
     }
 
-    var el = document.getElementById('{id}');
+    var el = document.getElementById(id);
     if (!el) return;
     var valueEl = el.querySelector('.stat-value');
     if (!valueEl) return;

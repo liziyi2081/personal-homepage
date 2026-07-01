@@ -166,7 +166,7 @@ body::after {
 │                                                            │
 │  $ whoami                                                  │  ← Neon Cyan 终端前缀
 │  Li Ziyi                                                   │  ← Ink 色
-│  Building software at the edge of code and craft.             │
+│  以代码为基、匠心为魂，打造软件作品             │
 │                                                            │
 │  ┌──────────────────────────────────────────────────┐      │
 │  │ ⬡ articles: 3  ⬡ projects: 1  ⬡ uptime: 30d    │      │  ← 数据面板

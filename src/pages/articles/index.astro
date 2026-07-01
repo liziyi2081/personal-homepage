@@ -1,11 +1,35 @@
 ---
+import { statSync } from 'node:fs';
+import { resolve } from 'node:path';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Footer from '../../components/Footer.astro';
 import MagneticCard from '../../components/MagneticCard.astro';
 import { getCollection } from 'astro:content';
 
+const contentDir = resolve(process.cwd(), 'src/content');
+
+function getMtime(id: string): number {
+  return statSync(resolve(contentDir, 'articles', id)).mtimeMs;
+}
+
+function getFileDates(id: string): { created: string; updated: string } {
+  const filePath = resolve(contentDir, 'articles', id);
+  const stat = statSync(filePath);
+  return { created: fmtDate(stat.birthtime), updated: fmtDate(stat.mtime) };
+}
+
+function fmtDate(d: Date): string {
+  const y = d.getFullYear();
+  const mo = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  const h = String(d.getHours()).padStart(2, '0');
+  const mi = String(d.getMinutes()).padStart(2, '0');
+  const s = String(d.getSeconds()).padStart(2, '0');
+  return `${y}-${mo}-${day} ${h}:${mi}:${s}`;
+}
+
 const allArticles = (await getCollection('articles')).sort(
-  (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
+  (a, b) => getMtime(b.id) - getMtime(a.id)
 );
 
 const perPage = 5;
@@ -14,10 +38,6 @@ const currentPage = Math.max(1, Math.min(totalPages, Number(Astro.url.searchPara
 const start = (currentPage - 1) * perPage;
 const articles = allArticles.slice(start, start + perPage);
 const base = import.meta.env.BASE_URL;
-
-function fmtDate(d: Date): string {
-  return d.toISOString().split('T')[0];
-}
 ---
 
 <BaseLayout>
@@ -27,11 +47,13 @@ function fmtDate(d: Date): string {
 
     <div class="grid grid-cols-1 gap-4">
       {articles.length > 0 ? (
-        articles.map((article) => (
+        articles.map((article) => {
+          const dates = getFileDates(article.id);
+          return (
           <MagneticCard class="glass-card">
             <a href={`${base}/articles/${article.slug}`} class="group block p-6 h-full flex flex-col">
               <p class="font-mono text-xs text-frost/50 mb-3 shrink-0">
-                created {fmtDate(article.data.date)} / updated {fmtDate(article.data.date)}
+                created {dates.created} / updated {dates.updated}
               </p>
               <h2 class="font-display text-lg font-bold text-plasma mb-2 group-hover:text-neon-cyan transition-colors duration-200 truncate shrink-0">
                 {article.data.title}
@@ -41,7 +63,8 @@ function fmtDate(d: Date): string {
               </p>
             </a>
           </MagneticCard>
-        ))
+          );
+        })
       ) : (
         <p class="col-span-full text-center font-mono text-sm text-frost/40 py-12">
           No articles yet.
@@ -70,6 +93,12 @@ function fmtDate(d: Date): string {
         )}
       </nav>
     )}
+
+    <div class="mt-12">
+      <a href={base} class="font-mono text-xs text-frost hover:text-plasma transition-colors duration-200">
+        &larr; Homelarr; 回到首页larr; 回到首页
+      </a>
+    </div>
   </main>
   <Footer />
 </BaseLayout>
