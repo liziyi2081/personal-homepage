@@ -15,7 +15,7 @@ const totalPages = Math.ceil(allProjects.length / perPage);
 const currentPage = Math.max(1, Math.min(totalPages, Number(Astro.url.searchParams.get('page')) || 1));
 const start = (currentPage - 1) * perPage;
 const projects = allProjects.slice(start, start + perPage);
-const base = import.meta.env.BASE_URL;
+const base = import.meta.env.BASE_URL === '/' ? '' : import.meta.env.BASE_URL;
 
 function fmtDate(d: Date): string {
   const y = d.getFullYear();
@@ -95,7 +95,7 @@ function getFileDates(id: string): { created: string; updated: string } {
     )}
 
     <div class="mt-12">
-      <a href={base} class="font-mono text-xs text-frost hover:text-plasma transition-colors duration-200">
+      <a href={base || '/'} class="font-mono text-xs text-frost hover:text-plasma transition-colors duration-200">
         &larr; 回到首页
       </a>
     </div>

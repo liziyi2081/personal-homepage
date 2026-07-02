@@ -37,7 +37,7 @@ const totalPages = Math.ceil(allArticles.length / perPage);
 const currentPage = Math.max(1, Math.min(totalPages, Number(Astro.url.searchParams.get('page')) || 1));
 const start = (currentPage - 1) * perPage;
 const articles = allArticles.slice(start, start + perPage);
-const base = import.meta.env.BASE_URL;
+const base = import.meta.env.BASE_URL === '/' ? '' : import.meta.env.BASE_URL;
 ---
 
 <BaseLayout>
@@ -95,7 +95,7 @@ const base = import.meta.env.BASE_URL;
     )}
 
     <div class="mt-12">
-      <a href={base} class="font-mono text-xs text-frost hover:text-plasma transition-colors duration-200">
+      <a href={base || '/'} class="font-mono text-xs text-frost hover:text-plasma transition-colors duration-200">
         &larr; 回到首页
       </a>
     </div>
