@@ -4,7 +4,7 @@ const aboutCollection = defineCollection({
   type: 'data',
   schema: z.object({
     nickname: z.string(),
-    avatar: z.string().default('/public/images/icons/avatar.png'),
+    avatar: z.string().default('/images/icons/avatar.png'),
     bio: z.string(),
     tagline: z.string(),
     school: z.string().default(''),
